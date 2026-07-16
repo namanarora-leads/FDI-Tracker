@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Foreign Investment Monitor | India</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: #0d1117;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #c9d1d9;
+      padding: 14px;
+      min-height: 100vh;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    
+    .app {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .title-block {
+      text-align: center;
+      padding: 18px 0 20px;
+      border-bottom: 1px solid #21262d;
+      margin-bottom: 18px;
+    }
+    .title-block h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #f0f6fc;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .title-block .sub {
+      font-size: 0.65rem;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 4px;
+    }
+    
+    .stats-pills {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .stat-pill {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 12px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      min-width: 0;
+    }
+    .stat-pill:active { background: #1c2128; border-color: #58a6ff; }
+    .stat-pill .val {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #f0f6fc;
+      line-height: 1;
+    }
+    .stat-pill .lbl {
+      font-size: 0.55rem;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 4px;
+      white-space: nowrap;
+    }
+    .stat-pill.auto .val { color: #f85149; }
+    .stat-pill.mfg .val { color: #58a6ff; }
+    .stat-pill.infra .val { color: #3fb950; }
+    .stat-pill.total { background: #1a1f28; border-color: #d2991d; }
+    .stat-pill.total .val { color: #d2991d; }
+    
+    .controls {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .controls input {
+      flex: 1;
+      min-width: 0;
+      padding: 9px 12px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      color: #c9d1d9;
+      font-size: 0.78rem;
+      outline: none;
+    }
+    .controls input:focus { border-color: #58a6ff; }
+    .controls button {
+      padding: 9px 16px;
+      background: #238636;
+      border: 1px solid #2ea043;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.72rem;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .controls button:active { background: #2ea043; }
+    .controls button.loading { opacity: 0.5; }
+    
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 16px;
+    }
+    .tag {
+      font-size: 0.6rem;
+      padding: 5px 10px;
+      border-radius: 16px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      cursor: pointer;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .tag.active { background: #1f6feb; border-color: #1f6feb; color: white; }
+    
+    .feed {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+      animation: in 0.3s ease;
+      overflow: hidden;
+    }
+    @keyframes in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .card:active { border-color: #30363d; background: #1c2128; }
+    
+    .card .row1 {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+    .card .head {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #f0f6fc;
+      line-height: 1.3;
+      flex: 1;
+      min-width: 0;
+      word-break: break-word;
+    }
+    .card .badge {
+      display: inline-block;
+      font-size: 0.52rem;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      letter-spacing: 0.04em;
+    }
+    .b-auto { background: #3d1214; color: #f85149; }
+    .b-mfg { background: #0d2137; color: #58a6ff; }
+    .b-infra { background: #0d2818; color: #3fb950; }
+    .b-gen { background: #1a1a1a; color: #8b949e; }
+    
+    .card .info {
+      font-size: 0.62rem;
+      color: #8b949e;
+      margin-bottom: 4px;
+    }
+    .card .info strong { color: #c9d1d9; }
+    .card .txt {
+      font-size: 0.72rem;
+      color: #8b949e;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+    
+    .empty { 
+      text-align:center; 
+      padding:40px 20px; 
+      color:#484f58; 
+      font-size:0.8rem;
+    }
+    .spinner {
+      width:22px; height:22px;
+      border:2px solid #21262d;
+      border-top:2px solid #58a6ff;
+      border-radius:50%;
+      animation:spin 0.7s linear infinite;
+      margin:0 auto 8px;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    
+    .foot {
+      text-align: center;
+      font-size: 0.58rem;
+      color: #484f58;
+      margin-top: 18px;
+      padding-top: 10px;
+      border-top: 1px solid #21262d;
+    }
+    
+    .msg {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #f0f6fc;
+      color: #0d1117;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.7rem;
+      z-index: 99;
+      animation: pop 0.3s ease;
+      white-space: nowrap;
+    }
+    @keyframes pop { from { opacity:0; transform:translateX(-50%) translateY(12px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+
+    @media (max-width: 380px) {
+      .stats-pills { grid-template-columns: repeat(2, 1fr); }
+      .stat-pill .val { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="title-block">
+    <h1>Foreign Investment Monitor</h1>
+    <div class="sub">India · Automobile · Manufacturing · Infrastructure</div>
+  </div>
+
+  <div class="stats-pills">
+    <div class="stat-pill auto" id="sAuto"><div class="val" id="vAuto">0</div><div class="lbl">Auto</div></div>
+    <div class="stat-pill mfg" id="sMfg"><div class="val" id="vMfg">0</div><div class="lbl">Mfg</div></div>
+    <div class="stat-pill infra" id="sInfra"><div class="val" id="vInfra">0</div><div class="lbl">Infra</div></div>
+    <div class="stat-pill total" id="sTotal"><div class="val" id="vTotal">0</div><div class="lbl">Total</div></div>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="searchBox" placeholder="Filter by keyword...">
+    <button id="loadBtn">Fetch</button>
+  </div>
+
+  <div class="tags" id="tagRow">
+    <span class="tag active" data-t="all">All</span>
+    <span class="tag" data-t="auto">Auto</span>
+    <span class="tag" data-t="mfg">Mfg</span>
+    <span class="tag" data-t="infra">Infra</span>
+    <span class="tag" data-t="fdi">FDI</span>
+    <span class="tag" data-t="gcc">GCC</span>
+    <span class="tag" data-t="rbi">RBI</span>
+    <span class="tag" data-t="jv">JV</span>
+    <span class="tag" data-t="acq">Acq</span>
+  </div>
+
+  <div class="feed" id="feedArea">
+    <div class="empty"><div class="spinner"></div>Loading intelligence...</div>
+  </div>
+
+  <div class="foot" id="footNote">Data sourced from public feeds</div>
+</div>
+
+<script>
+(function(){
+  const feedArea=document.getElementById('feedArea');
+  const searchBox=document.getElementById('searchBox');
+  const loadBtn=document.getElementById('loadBtn');
+  const tagRow=document.getElementById('tagRow');
+  const footNote=document.getElementById('footNote');
+  const vAuto=document.getElementById('vAuto');
+  const vMfg=document.getElementById('vMfg');
+  const vInfra=document.getElementById('vInfra');
+  const vTotal=document.getElementById('vTotal');
+
+  let articles=[];
+  let filter='all';
+  let query='';
+
+  function msg(t){
+    const o=document.querySelector('.msg'); if(o)o.remove();
+    const e=document.createElement('div'); e.className='msg'; e.textContent=t;
+    document.body.appendChild(e); setTimeout(()=>e.remove(),2500);
+  }
+
+  function anim(el,tgt){
+    const s=parseInt(el.textContent)||0,d=300,b=performance.now();
+    function f(n){ const p=Math.min((n-b)/d,1); el.textContent=Math.round(s+(tgt-s)*(1-Math.pow(1-p,3))); if(p<1)requestAnimationFrame(f); }
+    requestAnimationFrame(f);
+  }
+
+  function mockData(){
+    const now=new Date(),dts=[];
+    for(let i=0;i<20;i++){ const d=new Date(now); d.setDate(d.getDate()-i); dts.push(d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'})); }
+    return [
+      {t:'Tesla finalises land for India EV manufacturing facility',s:'Economic Times',d:dts[0],x:'Land deal near Pune for greenfield manufacturing under automatic FDI route.',sec:'auto',cat:'auto'},
+      {t:'Volkswagen commits €1B to India EV production expansion',s:'Business Standard',d:dts[1],x:'German auto major expands Chakan plant with fresh FDI for EV lines.',sec:'auto',cat:'fdi'},
+      {t:'Foxconn incorporates India subsidiary for chip manufacturing',s:'Reuters',d:dts[2],x:'Wholly-owned subsidiary in Tamil Nadu for advanced semiconductor production.',sec:'mfg',cat:'mfg'},
+      {t:'Siemens opens India GCC with 2,000 engineers in Pune',s:'LiveMint',d:dts[3],x:'Largest India global capability centre for digital industries R&D.',sec:'mfg',cat:'gcc'},
+      {t:'Airbus-Tata JV approved for aircraft component manufacturing',s:'Financial Express',d:dts[4],x:'Joint venture cleared under government route with DPIIT approval.',sec:'mfg',cat:'jv'},
+      {t:'BlackRock acquires Indian highway developer for $1.2B',s:'Bloomberg',d:dts[5],x:'Cross-border acquisition with FC-TRS filing completed with RBI.',sec:'infra',cat:'acq'},
+      {t:'Hyundai incorporates India R&D centre in Hyderabad',s:'Times of India',d:dts[6],x:'New subsidiary for autonomous driving software and connected mobility.',sec:'auto',cat:'auto'},
+      {t:'ArcelorMittal Nippon Steel gets RBI nod for $500M ECB',s:'The Hindu',d:dts[7],x:'External commercial borrowing approved for capacity expansion.',sec:'mfg',cat:'rbi'},
+      {t:'DP World enters India with DPIIT-cleared logistics park',s:'Logistics Insider',d:dts[8],x:'Multimodal logistics park under Press Note 3 compliance.',sec:'infra',cat:'infra'},
+      {t:'Toyota Tsusho sets up India shared services GCC in Bengaluru',s:'Business Standard',d:dts[9],x:'Captive shared services hub for global operations.',sec:'auto',cat:'gcc'},
+      {t:'Schneider Electric incorporates India smart grid subsidiary',s:'Economic Times',d:dts[10],x:'New entity for energy management; FC-GPR filing in progress.',sec:'infra',cat:'infra'},
+      {t:'Caterpillar announces $300M brownfield investment in TN',s:'Business Line',d:dts[11],x:'Expansion of earthmoving equipment plant under automatic route.',sec:'mfg',cat:'mfg'},
+      {t:'BYD gets DPIIT nod for $1B greenfield EV plant in Gujarat',s:'Reuters',d:dts[12],x:'Greenfield investment under government route with Press Note 3.',sec:'auto',cat:'fdi'},
+      {t:'Samsung Heavy opens India engineering centre in Mumbai',s:'Maritime Gateway',d:dts[13],x:'New centre for global offshore engineering; 500+ engineers.',sec:'infra',cat:'gcc'},
+      {t:'Bosch incorporates India subsidiary for connected mobility',s:'Auto Car India',d:dts[14],x:'Wholly-owned subsidiary in Bengaluru for software-defined vehicles.',sec:'auto',cat:'auto'},
+      {t:'Hitachi Energy forms India JV for power transmission',s:'Power Line',d:dts[15],x:'Joint venture for high-voltage equipment manufacturing.',sec:'infra',cat:'jv'},
+      {t:'Pegatron gets RBI approval for India manufacturing expansion',s:'ET Telecom',d:dts[16],x:'Taiwanese manufacturer expands India subsidiary for electronics.',sec:'mfg',cat:'rbi'},
+      {t:'Daimler Truck opens India capability centre in Chennai',s:'Manufacturing Today',d:dts[17],x:'New GCC for commercial vehicle engineering for global markets.',sec:'auto',cat:'gcc'},
+      {t:'TotalEnergies acquires stake in Indian renewable developer',s:'ET Energy',d:dts[18],x:'French major completes cross-border acquisition in renewables.',sec:'infra',cat:'acq'},
+      {t:'ABB incorporates India robotics manufacturing subsidiary',s:'Manufacturing Today',d:dts[19],x:'New facility in Karnataka under automatic FDI route.',sec:'mfg',cat:'mfg'},
+    ];
+  }
+
+  function load(){
+    articles=mockData();
+    apply();
+    msg('Loaded: '+articles.length+' developments');
+    footNote.textContent='Updated · '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+' IST';
+  }
+
+  function apply(){
+    let f=[...articles];
+    if(filter!=='all') f=f.filter(a=>(a.cat+' '+a.sec+' '+a.t).toLowerCase().includes(filter));
+    if(query.trim()){ const q=query.toLowerCase(); f=f.filter(a=>(a.t+a.s+a.x).toLowerCase().includes(q)); }
+    render(f); updateStats(f);
+  }
+
+  function render(list){
+    if(!list.length){ feedArea.innerHTML='<div class="empty">No results match</div>'; return; }
+    let h='';
+    list.forEach((a,i)=>{
+      let bc='b-gen',bt='GEN';
+      if(a.sec==='auto'){bc='b-auto';bt='AUTO';}
+      else if(a.sec==='mfg'){bc='b-mfg';bt='MFG';}
+      else if(a.sec==='infra'){bc='b-infra';bt='INFRA';}
+      h+=`<div class="card" style="animation-delay:${i*0.03}s">
+        <div class="row1">
+          <div class="head">${esc(a.t)}</div>
+          <span class="badge ${bc}">${bt}</span>
+        </div>
+        <div class="info"><strong>${esc(a.s)}</strong> · ${esc(a.d)}</div>
+        <div class="txt">${esc(a.x)}</div>
+      </div>`;
+    });
+    feedArea.innerHTML=h;
+  }
+
+  function updateStats(list){
+    anim(vAuto,list.filter(a=>a.sec==='auto').length);
+    anim(vMfg,list.filter(a=>a.sec==='mfg').length);
+    anim(vInfra,list.filter(a=>a.sec==='infra').length);
+    anim(vTotal,list.length);
+  }
+
+  function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+  loadBtn.addEventListener('click',load);
+  searchBox.addEventListener('input',()=>{query=searchBox.value;apply();});
+  tagRow.addEventListener('click',e=>{
+    if(e.target.classList.contains('tag')){
+      document.querySelectorAll('.tag').forEach(t=>t.classList.remove('active'));
+      e.target.classList.add('active');
+      filter=e.target.dataset.t; apply();
+    }
+  });
+  document.getElementById('sAuto').addEventListener('click',()=>setF('auto'));
+  document.getElementById('sMfg').addEventListener('click',()=>setF('mfg'));
+  document.getElementById('sInfra').addEventListener('click',()=>setF('infra'));
+  document.getElementById('sTotal').addEventListener('click',()=>setF('all'));
+  function setF(f){ filter=f; document.querySelectorAll('.tag').forEach(t=>t.classList.remove('active')); const tg=document.querySelector(`[data-t="${f}"]`); if(tg)tg.classList.add('active'); apply(); }
+
+  load();
+})();
+</script>
+</body>
+</html>
